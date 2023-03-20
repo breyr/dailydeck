@@ -1,0 +1,10 @@
+finnhub_python==2.4.16
+Flask==2.2.2
+flask_bcrypt==1.0.1
+Flask_Login==0.6.2
+flask_sqlalchemy==3.0.3
+flask_wtf==1.1.1
+pandas==1.4.2
+python-dotenv==1.0.0
+SQLAlchemy==1.4.32
+WTForms==3.0.1
