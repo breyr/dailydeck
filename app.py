@@ -16,10 +16,12 @@ from datetime import datetime
 
 # initialization
 load_dotenv()
+DB_PWD = os.getenv('DB_PWD')
+DB_USR = os.getenv('DB_USR')
+DB_ENDPOINT = os.getenv('DB_ENDPOINT')
+DB_NAME = os.getenv('DB_NAME')
 app = Flask(__name__)
-basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] =\
-        'sqlite:///' + os.path.join(basedir, 'database.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql://{DB_USR}:{DB_PWD}@{DB_ENDPOINT}/{DB_NAME}'
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
