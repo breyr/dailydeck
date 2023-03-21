@@ -9,13 +9,6 @@ body %}
     {{ form.item(class_="form-control") }} {{ form.submit(class_="btn
     btn-secondary") }}
   </div>
-  {% if form.item.errors %}
-  <ul class="errors">
-    {% for error in form.item.errors %}
-    <li>{{ error }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %}
 </form>
 <div class="content">
   {% if stock_info %} {% for key, value in stock_info.items() %}

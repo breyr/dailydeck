@@ -16,12 +16,10 @@ from datetime import datetime
 
 # initialization
 load_dotenv()
-DB_PWD = os.getenv('DB_PWD')
-DB_USR = os.getenv('DB_USR')
-DB_ENDPOINT = os.getenv('DB_ENDPOINT')
-DB_NAME = os.getenv('DB_NAME')
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{DB_USR}:{DB_PWD}@{DB_ENDPOINT}/{DB_NAME}'
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] =\
+        'sqlite:///' + os.path.join(basedir, 'database.db')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
@@ -78,17 +76,11 @@ class LoginForm(FlaskForm):
 class AddToListForm(FlaskForm):
     item = StringField(validators=[InputRequired(), Length(max=255)], render_kw={'placeholder': 'Enter a stock ticker, i.e. AAPL'})
     submit = SubmitField('add')
-    
-    def validate_item(self, item):
-        existing_item = Item.query.filter_by(username=item.data).first()
-        if existing_item:
-            raise ValidationError(f'{item.data.upper()} already in watchlist.')
 
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -110,7 +102,13 @@ def dashboard():
     if request.method == 'POST':
         if form.validate_on_submit():
             user_id = User.query.filter_by(username=current_user.username).first().id
-            new_item = Item(user_id=user_id, value=form.item.data.upper())
+            # check to see if that ticker is stored for that user
+            res = Item.query.filter_by(user_id=user_id, value=form.item.data.upper()).first()
+            # if there isn't an item then add it
+            if not res:
+                new_item = Item(user_id=user_id, value=form.item.data.upper())
+                db.session.add(new_item)
+                db.session.commit()
             return redirect(url_for('dashboard'))
     else:
         curr_hr = datetime.now().hour
